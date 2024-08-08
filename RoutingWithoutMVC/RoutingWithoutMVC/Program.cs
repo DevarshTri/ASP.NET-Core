@@ -8,9 +8,9 @@ var app = builder.Build();
 
 //app.MapDefaultControllerRoute();
 
-app.MapControllerRoute(
-    name: "Default",
-    pattern: "{controller=Home}/{action=About}/{id?}");
+//app.MapControllerRoute(
+//    name: "Default",
+//    pattern: "{controller=Home}/{action=About}/{id?}");
 
 // Attribute based Routing
 
