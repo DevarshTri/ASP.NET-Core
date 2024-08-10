@@ -6,6 +6,16 @@ namespace Controllers_Actions.Controllers
     {
         public IActionResult Index()
         {
+            ViewData["Data"] = "Devarsh";
+            ViewData["Data1"] = 23;
+            ViewData["Data2"] = DateTime.Now.ToLongDateString();
+
+            string[] arr = { "A", "B", "C" };
+            ViewData["Data3"] = arr;
+            ViewData["Data4"] = new List<string>()
+            {
+                "A","B","C"
+            };
             return View();
         }
         public IActionResult About()

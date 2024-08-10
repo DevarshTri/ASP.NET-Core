@@ -1,14 +1,35 @@
 ﻿
 @{
     ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    //Layout = "~/Views/Shared/_Layout.cshtml";
+    //Layout = "~/Views/Shared/_Layout1.cshtml";
+    Layout = null;
     // var name = "Devrash Trivedi";
 }
 
 <h1>Index</h1>
 <p>This is my Home page..</p>
 
+@ViewData["Data"]
+<br />
+@ViewData["Data1"]
+<br />
+@ViewData["Data2"]
+<br />
+@ViewData["Data3"]
+<br />
+@ViewData["Data4"]
 
+@{
+    // foreach (var item in (string)ViewData["Data3"])
+    // {
+    //     <h3>@item</h3>
+    // }
+    foreach(var item in (List<string>)ViewData["Data4"])
+    {
+        <h3>@item</h3>
+    }
+}
  @* @{
      var name1 = "Devarsh";
 
