@@ -10,6 +10,34 @@
 <h1>Index</h1>
 <p>This is my Home page..</p>
 
+
+ @* @ViewData["Data6"]
+     @TempData["Name"]
+ <br />
+ @ViewBag.Name
+ <br />
+ @ViewBag.Data1
+ <br />
+ @ViewBag.Data2
+ <br />
+ @ViewBag.Data3
+ <br />
+
+
+ @{
+     foreach(var item in ViewBag.Data4)
+     {
+         <h2>@item</h2>
+     }
+ }
+
+ @{
+     foreach(var item1 in ViewBag.Data5)
+     {
+         <h3>@item1</h3>
+     }
+ } *@
+@*
 @ViewData["Data"]
 <br />
 @ViewData["Data1"]
@@ -30,6 +58,7 @@
         <h3>@item</h3>
     }
 }
+*@
  @* @{
      var name1 = "Devarsh";
 
