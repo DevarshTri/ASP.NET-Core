@@ -1,0 +1,89 @@
+﻿@model IEnumerable<Student_CRUD.Models.Student>
+
+@{
+    ViewData["Title"] = "Index";
+    // Layout = null;
+}
+
+<h1>Index</h1>
+<br />
+@* <button class="btn btn-primary" asp-action="Create">Create New</button>  *@
+
+  <p>
+     <a asp-action="Create" class="btn btn-primary">Create New</a>
+ </p> 
+@{
+    if(TempData["insert_success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Success!</strong> @TempData["insert_success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    if (TempData["Update_success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Success!</strong> @TempData["Update_success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    if (TempData["Delete_success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Success!</strong> @TempData["Delete_success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+}
+ <br />
+<table class="table table-dark table-bordered table-hover table-striped">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Gender)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Age)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Standart)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Gender)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Age)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Standart)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-success">Edit</a> 
+                    @* <button type="button" class="btn btn-success" asp-action="@item.Id">Edit</button>
+                    <button type="button" class="btn btn-info" asp-action="@item.Id">View</button> *@
+                 <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info">Details</a> 
+                   @*  <button type="button" class="btn btn-danger" asp-action="@item.Id">Delete</button> *@
+                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger">Delete</a> 
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
