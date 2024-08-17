@@ -1,7 +1,16 @@
+using Microsoft.EntityFrameworkCore;
+using Student_CRUD_DBF.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+//var provider = builder.Services.BuildServiceProvider();
+//var config = provider.GetService<IConfiguration>();
+builder.Services.AddDbContext<Sata1002Context>(options =>
+{
+    options.UseNpgsql(builder.Configuration.GetConnectionString("connection"));
+});
 
 var app = builder.Build();
 

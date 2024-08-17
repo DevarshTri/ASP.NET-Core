@@ -1,4 +1,4 @@
-namespace Student_CRUD_DBF.Models
+namespace Student_CRUD_Wihout_Entity.Models
 {
     public class ErrorViewModel
     {
