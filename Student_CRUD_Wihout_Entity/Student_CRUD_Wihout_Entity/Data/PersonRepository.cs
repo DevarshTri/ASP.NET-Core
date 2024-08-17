@@ -92,5 +92,17 @@ namespace Student_CRUD_Wihout_Entity.Data
                 }
             }
         }
+        public async Task DeleteAsync(int id)
+        {
+            using (var connection = new NpgsqlConnection(_connection))
+            {
+                await connection.OpenAsync();
+                using (var command = new NpgsqlCommand("DELETE FROM persons WHERE Id = @Id", connection))
+                {
+                    command.Parameters.AddWithValue("Id", id);
+                    await command.ExecuteNonQueryAsync();
+                }
+            }
+        }
     }
 }

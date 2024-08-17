@@ -48,6 +48,19 @@ namespace Student_CRUD_Wihout_Entity.Controllers
             }
             return View(person);
         }
+        public async Task<IActionResult> Delete(int id)
+        {
+            if (id == null)
+            {
+                return BadRequest();
+            }
+            if (ModelState.IsValid)
+            {
+                await personrepo.DeleteAsync(id);
+                return RedirectToAction("Index");
+            }
+            return View(id);
+        }
         public IActionResult Privacy()
         {
             return View();
