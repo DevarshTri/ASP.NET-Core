@@ -67,9 +67,9 @@ namespace Student_CRUD_Wihout_Entity.Data
             using(var connection = new NpgsqlConnection(_connection))
             {
                 await connection.OpenAsync();
-                using (var command = new NpgsqlCommand("INSERT INTO persons VALUES (@Name, @Email)", connection))
+                using (var command = new NpgsqlCommand("INSERT INTO persons VALUES (@Id, @Name, @Email)", connection))
                 {
-                    //command.Parameters.AddWithValue("Id", person.Id);
+                    command.Parameters.AddWithValue("Id", person.Id);
                     command.Parameters.AddWithValue("Name", person.Name);
                     command.Parameters.AddWithValue("Email",person.Email);
 
