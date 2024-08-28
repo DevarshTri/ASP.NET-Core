@@ -1,0 +1,25 @@
+﻿@model IEnumerable<Expense_App.Models.Expense>
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+<a asp-action="Create" class="btn btn-primary">Create</a>
+<div>
+    <table class="table table-striped table-dark text-center">
+        <tr>
+            <th>Id</th>
+            <th>Expense-Type</th>
+            <th>Expense-Amount</th>
+        </tr>
+        <tr>
+            @foreach(var item in Model)
+            {
+                <td>@item.Expense_Id</td>
+                <td>@item.Expense_type</td>
+                <td>@item.Expense_Amount</td>
+            }
+        </tr>
+    </table>
+</div>
+

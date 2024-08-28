@@ -1,0 +1,35 @@
+﻿@model Expense_App.Models.Expense
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<form asp-action="Create">
+    <div>
+        <label>Expense ID</label>
+        <input asp-for="Expense_Id" type="text" />
+    </div>
+    <div>
+        <label>Username</label>
+        <input asp-for="Username" type="text" />
+    </div>
+    <div>
+        <label>Password</label>
+        <input asp-for="Password" type="text" />
+    </div>
+    <div>
+        <label>Expense Type</label>
+        <input asp-for="Expense_type" type="text" />
+    </div>
+    <div>
+        <label>Expense Description</label>
+        <input asp-for="Expense_Description" type="text" />
+    </div>
+    <div>
+        <label>Expense Amount</label>
+        <input asp-for="Expense_Amount" type="text" />
+    </div>
+    <input type="submit" value="Create"/>
+</form>
