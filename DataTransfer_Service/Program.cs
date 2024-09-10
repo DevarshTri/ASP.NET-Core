@@ -1,12 +1,11 @@
-using DataTransfer.Models;
+using DataTransfer_Service.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddHostedService<TimedHostedService>();
 builder.Services.AddTransient<IDataTransferService, DataTransferService>();
-builder.Services.AddWindowsService();
+builder.Services.AddHostedService<TimedHostedService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -19,6 +18,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
 app.UseRouting();
 
 app.UseAuthorization();
