@@ -21,7 +21,7 @@ public class TimedHostedService : IHostedService, IDisposable
             async (state) => await DoWork(),
             null,
             TimeSpan.Zero,
-            TimeSpan.FromSeconds(20));
+            TimeSpan.FromHours(1));
 
         return Task.CompletedTask;
     }
