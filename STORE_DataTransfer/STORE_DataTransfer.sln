@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35201.131
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataTransfer", "DataTransfer.csproj", "{E520037F-19F9-45AA-AF80-6826543E6233}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "STORE_DataTransfer", "STORE_DataTransfer.csproj", "{702AD5A0-90DB-4889-9CAD-9A64F5E6EFF9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{E520037F-19F9-45AA-AF80-6826543E6233}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E520037F-19F9-45AA-AF80-6826543E6233}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E520037F-19F9-45AA-AF80-6826543E6233}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E520037F-19F9-45AA-AF80-6826543E6233}.Release|Any CPU.Build.0 = Release|Any CPU
+		{702AD5A0-90DB-4889-9CAD-9A64F5E6EFF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{702AD5A0-90DB-4889-9CAD-9A64F5E6EFF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{702AD5A0-90DB-4889-9CAD-9A64F5E6EFF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{702AD5A0-90DB-4889-9CAD-9A64F5E6EFF9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {3A2B4234-F116-4F53-B8AF-F48A43B62BB0}
+		SolutionGuid = {DF53CC01-9D23-45AA-A010-A8B572E02467}
 	EndGlobalSection
 EndGlobal

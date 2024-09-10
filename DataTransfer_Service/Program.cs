@@ -6,6 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddTransient<IDataTransferService, DataTransferService>();
 builder.Services.AddHostedService<TimedHostedService>();
+builder.Services.AddWindowsService();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

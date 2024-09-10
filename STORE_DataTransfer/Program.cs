@@ -1,11 +1,11 @@
-using DataTransfer.Models;
+using STORE_DataTransfer.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddTransient<IDataTransferService, DataTransfer>();
 builder.Services.AddHostedService<TimedHostedService>();
-builder.Services.AddTransient<IDataTransferService, DataTransferService>();
 builder.Services.AddWindowsService();
 var app = builder.Build();
 
@@ -19,6 +19,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
 app.UseRouting();
 
 app.UseAuthorization();

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using DataTransfer.Models;
 using Microsoft.Extensions.Hosting;
+using STORE_DataTransfer.Models;
 
 public class TimedHostedService : IHostedService, IDisposable
 {
@@ -21,7 +21,7 @@ public class TimedHostedService : IHostedService, IDisposable
             async (state) => await DoWork(),
             null,
             TimeSpan.Zero,
-            TimeSpan.FromSeconds(50));
+            TimeSpan.FromSeconds(20));
 
         return Task.CompletedTask;
     }

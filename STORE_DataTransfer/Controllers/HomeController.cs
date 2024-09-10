@@ -1,23 +1,20 @@
-using DataTransfer.Models;
 using Microsoft.AspNetCore.Mvc;
+using STORE_DataTransfer.Models;
 using System.Diagnostics;
 
-namespace DataTransfer.Controllers
+namespace STORE_DataTransfer.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly IDataTransferService dataTransferService;
 
-        public HomeController(ILogger<HomeController> logger , IDataTransferService dataTransferService)
+        public HomeController(ILogger<HomeController> logger)
         {
             _logger = logger;
-            this.dataTransferService = dataTransferService;
         }
 
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            await dataTransferService.TransferDataAsync();
             return View();
         }
 

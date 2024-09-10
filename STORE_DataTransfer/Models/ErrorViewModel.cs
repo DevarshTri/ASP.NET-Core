@@ -1,4 +1,4 @@
-namespace DataTransfer.Models
+namespace STORE_DataTransfer.Models
 {
     public class ErrorViewModel
     {
