@@ -16,7 +16,7 @@ public class TimedHostedService : IHostedService, IDisposable
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        // Run the task immediately and then every hour
+        // Run the task immediately and then every minute
         _timer = new Timer(
             async (state) => await DoWork(),
             null,
