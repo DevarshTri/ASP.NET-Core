@@ -1,5 +1,7 @@
+using log4net.Config;
 using STORE_DataTransfer.Models;
-
+XmlConfigurator.Configure(new FileInfo("Logger.xml"));
+//BasicConfigurator.Configure();
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System.Data.SqlClient;
+using log4net;
 
 namespace STORE_DataTransfer.Models
 {
@@ -14,6 +15,8 @@ namespace STORE_DataTransfer.Models
         private readonly IConfiguration _configuration;
         private readonly string _source;
         private readonly string _destination;
+        private static readonly ILog log = LogManager.GetLogger(typeof(DataTransfer));
+
 
         public DataTransfer(IConfiguration configuration)
         {
@@ -24,6 +27,7 @@ namespace STORE_DataTransfer.Models
 
         public async Task TransferDataAsync()
         {
+            log.Info("Starting data transfer process.");
             try
             {
                 // Retrieve the last process start time from appsettings.json
@@ -32,12 +36,15 @@ namespace STORE_DataTransfer.Models
 
                 // Update the process start time before starting the data transfer
                 UpdateProcessStartTime(DateTime.Now);
+                log.Info($"Process start time:{DateTime.Now}");
 
                 using (var sourceConnection = new SqlConnection(_source))
                 using (var destinationConnection = new NpgsqlConnection(_destination))
                 {
                     await sourceConnection.OpenAsync();
                     await destinationConnection.OpenAsync();
+
+                    log.Info("Connected to source and destination databases.");
 
                     // Define the query based on whether it's the first run or a subsequent run
                     var sourceQuery = lastProcessTime == null ?
@@ -74,8 +81,16 @@ namespace STORE_DataTransfer.Models
                         using (var adapter = new SqlDataAdapter(command))
                         {
                             adapter.Fill(dataTable);
+                            log.Info($"Source query executed. Number of records fetched: {dataTable.Rows.Count}");
                         }
                     }
+
+                    if (dataTable.Rows.Count == 0)
+                    {
+                        log.Warn("No records found for transfer.");
+                        return;
+                    }
+
                     var cmdVendorsku = new NpgsqlCommand();
                     var cmdUPC = new NpgsqlCommand();
                     if(dataTable.Rows.Count > 0)
@@ -146,11 +161,12 @@ namespace STORE_DataTransfer.Models
                                                         updateCommand.Parameters.AddWithValue("@Sku", sku);
                                                         await updateCommand.ExecuteNonQueryAsync();
                                                         Console.WriteLine($"Updated POS stock for SKU {sku} in store {storeId}.");
+                                                        log.Info($"Updated POS stock for SKU {sku} in store {storeId}.");
                                                     }
                                                 }
                                                 catch(Exception ex)
                                                 {
-                                                    Console.WriteLine($"Error for Updating Records : {ex.Message}");
+                                                    log.Error($"Error for Updating Records : {ex.Message}");
                                                     continue;
                                                 }
                                             }
@@ -167,11 +183,12 @@ namespace STORE_DataTransfer.Models
                                                         insertCommand.Parameters.AddWithValue("@Pos_Stock", quantity);
                                                         await insertCommand.ExecuteNonQueryAsync();
                                                         Console.WriteLine($"Inserted new POS stock record for SKU {sku} in store {storeId}.");
+                                                        log.Info($"Inserted new POS stock record for SKU {sku} in store {storeId}.");
                                                     }
                                                 }
                                                 catch (Exception ex)
                                                 {
-                                                    Console.WriteLine($"Error for Inserting Records : {ex.Message}");
+                                                    log.Error($"Error for Inserting Records : {ex.Message}");
                                                     continue;
                                                 }
                                             }
@@ -179,18 +196,18 @@ namespace STORE_DataTransfer.Models
                                     }
                                     else
                                     {
-                                        Console.WriteLine($"Store with StoreId {storeId} does not exist. No update/insert performed.");
+                                        log.Warn($"Store with StoreId {storeId} does not exist. No update/insert performed.");
                                     }
                                 }
                             }
                             else
                             {
-                                Console.WriteLine($"MAINUPC {mainUpc} not found in ITM_VENDORSKU or ITM_ITEMUPC. No update/insert performed.");
+                                log.Warn($"MAINUPC {mainUpc} not found in ITM_VENDORSKU or ITM_ITEMUPC. No update/insert performed.");
                             }
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine($"Error processing row with MAINUPC {row["MAINUPC"]}: {ex.Message}");
+                            log.Error($"Error processing row with MAINUPC {row["MAINUPC"]}: {ex.Message}");
                             continue;
                         }
                     }
@@ -198,8 +215,8 @@ namespace STORE_DataTransfer.Models
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An error occurred during data transfer: {ex.Message}");
-                
+                log.Error($"An error occurred during data transfer: {ex.Message}");
+
             }
         }
 
