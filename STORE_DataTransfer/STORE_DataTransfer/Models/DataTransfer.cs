@@ -46,44 +46,29 @@ namespace STORE_DataTransfer.Models
 
                     log.Info("Connected to source and destination databases.");
 
-                    // Define the query based on whether it's the first run or a subsequent run
-                    var sourceQuery = lastProcessTime == null ?
-                        "SELECT S.LOCATION, S.EZ_STORE_ID, I.MAINUPC, SI.QUANTITY " +
+                    var sourceQuery = "SELECT S.LOCATION, S.EZ_STORE_ID, I.MAINUPC, SI.QUANTITY " +
                         "FROM MST_STORE S " +
                         "INNER JOIN STK_FACILITY F ON S.STOREID = F.STOREID " +
                         "INNER JOIN STK_ITEMSTOCK SI ON F.FACILITYID = SI.FACILITYID " +
                         "INNER JOIN ITM_ITEMINFO I ON SI.SKU = I.SKU " +
-                        "WHERE S.EZ_STORE_ID IS NOT NULL AND S.EZ_STORE_ID > 0 AND F.ISPREDEFINED = 1 " +
-                        "ORDER BY S.EZ_STORE_ID, S.LOCATION;" :
-                        "SELECT S.LOCATION, S.EZ_STORE_ID, I.MAINUPC, SI.QUANTITY " +
-                        "FROM MST_STORE S " +
-                        "INNER JOIN STK_FACILITY F ON S.STOREID = F.STOREID " +
-                        "INNER JOIN STK_ITEMSTOCK SI ON F.FACILITYID = SI.FACILITYID " +
-                        "INNER JOIN ITM_ITEMINFO I ON SI.SKU = I.SKU " +
-                        "WHERE S.EZ_STORE_ID IS NOT NULL AND S.EZ_STORE_ID > 0 AND F.ISPREDEFINED = 1 " +
-                        "AND (I.CREATEDATETIME > @ProcessStartTime OR I.UPDATEDATETIME > @ProcessStartTime) " +
-                        "ORDER BY S.EZ_STORE_ID, S.LOCATION;";
+                        "WHERE S.EZ_STORE_ID IS NOT NULL AND S.EZ_STORE_ID > 0 AND F.ISPREDEFINED = 1 ";
+
+                    if (lastProcessTime != null)
+                    {
+                        DateTime _lastProcessTime = (DateTime)lastProcessTime; // Convert.ToDateTime(lastProcessTime);
+                        sourceQuery += " AND (I.CREATEDATETIME > '" + _lastProcessTime.ToString("yyyy-MM-dd HH:mm:ss") + "' OR I.UPDATEDATETIME > '" + _lastProcessTime.ToString("yyyy-MM-dd HH:mm:ss") + "') ";
+                    }
+
+                    sourceQuery += " ORDER BY S.EZ_STORE_ID, S.LOCATION;";
 
                     // Load data from the source database into a DataTable
                     var dataTable = new DataTable();
-                    using (var command = new SqlCommand(sourceQuery, sourceConnection))
+                    using (var adapter = new SqlDataAdapter(sourceQuery, sourceConnection))
                     {
-                        if (lastProcessTime != null)
-                        {
-                            command.Parameters.Add(new SqlParameter
-                            {
-                                ParameterName = "@ProcessStartTime",
-                                SqlDbType = SqlDbType.DateTimeOffset,
-                                Value = lastProcessTime
-                            });
-                        }
-
-                        using (var adapter = new SqlDataAdapter(command))
-                        {
-                            adapter.Fill(dataTable);
-                            log.Info($"Source query executed. Number of records fetched: {dataTable.Rows.Count}");
-                        }
+                        adapter.Fill(dataTable);
+                        log.Info($"Source query executed. Number of records fetched: {dataTable.Rows.Count}");
                     }
+                   
 
                     if (dataTable.Rows.Count == 0)
                     {
@@ -91,9 +76,11 @@ namespace STORE_DataTransfer.Models
                         return;
                     }
 
+                    log.Warn("Total records found for transfer : " + dataTable.Rows.Count);
+
                     var cmdVendorsku = new NpgsqlCommand();
                     var cmdUPC = new NpgsqlCommand();
-                    if(dataTable.Rows.Count > 0)
+                    if (dataTable.Rows.Count > 0)
                     {
                         // Prepare commands for checking SKUs in ITM_VENDORSKU and ITM_ITEMUPC
                         var skuQuery = "SELECT SKU FROM ITM_VENDORSKU WHERE VENDORSKU = @Vendorsku";
@@ -102,11 +89,10 @@ namespace STORE_DataTransfer.Models
                         await cmdVendorsku.PrepareAsync();
 
                         skuQuery = "SELECT SKU FROM ITM_ITEMUPC WHERE UPC = @UPC";
-                         cmdUPC = new NpgsqlCommand(skuQuery, destinationConnection);
+                        cmdUPC = new NpgsqlCommand(skuQuery, destinationConnection);
                         cmdUPC.Parameters.Add("@UPC", NpgsqlTypes.NpgsqlDbType.Text);
                         await cmdUPC.PrepareAsync();
                     }
-                    
 
                     // Process each row and perform insert/update operations
                     foreach (DataRow row in dataTable.Rows)
@@ -132,20 +118,19 @@ namespace STORE_DataTransfer.Models
                                 var sku = Convert.ToInt64(skuFromVendor);
 
                                 // Check if the store exists in MST_STORE
-                                var storeCheckQuery = "SELECT STOREID FROM MST_STORE WHERE EZ_STORE_ID = @StoreId";
+                                var storeCheckQuery = "SELECT STOREID FROM MST_STORE WHERE EZ_STORE_ID = "+ storeId + "";
                                 using (var storeCheckCommand = new SqlCommand(storeCheckQuery, sourceConnection))
                                 {
-                                    storeCheckCommand.Parameters.AddWithValue("@StoreId", storeId);
                                     var storeExists = await storeCheckCommand.ExecuteScalarAsync();
 
                                     if (storeExists != null)
                                     {
                                         // Check if SKU exists in ITM_POSSTOCK
-                                        var posstQuery = "SELECT POSST_ID FROM ITM_POSSTOCK WHERE STORE_ID = @StoreId AND SKU = @Sku";
+                                        var posstQuery = "SELECT POSST_ID FROM ITM_POSSTOCK WHERE STORE_ID = " + storeId + " AND SKU = " + sku;
                                         using (var posstCommand = new NpgsqlCommand(posstQuery, destinationConnection))
                                         {
-                                            posstCommand.Parameters.AddWithValue("@StoreId", storeId);
-                                            posstCommand.Parameters.AddWithValue("@Sku", sku);
+                                            log.Debug("ITM_POSSTOCK.SELECT.posstQuery : " + posstQuery);
+
                                             var posstId = await posstCommand.ExecuteScalarAsync();
 
                                             if (posstId != null && (int)posstId > 0)
@@ -153,18 +138,17 @@ namespace STORE_DataTransfer.Models
                                                 try
                                                 {
                                                     // Update POS stock
-                                                    var updateQuery = "UPDATE ITM_POSSTOCK SET POS_STOCK = @Pos_Stock WHERE STORE_ID = @StoreId AND SKU = @Sku";
+                                                    var updateQuery = "UPDATE ITM_POSSTOCK SET POS_STOCK = " + quantity + " WHERE STORE_ID = " + storeId + " AND SKU = " + sku;
                                                     using (var updateCommand = new NpgsqlCommand(updateQuery, destinationConnection))
                                                     {
-                                                        updateCommand.Parameters.AddWithValue("@Pos_Stock", quantity);
-                                                        updateCommand.Parameters.AddWithValue("@StoreId", storeId);
-                                                        updateCommand.Parameters.AddWithValue("@Sku", sku);
+                                                        log.Debug("ITM_POSSTOCK.UPDATE.updateQuery  : " + updateQuery);
+
                                                         await updateCommand.ExecuteNonQueryAsync();
-                                                        Console.WriteLine($"Updated POS stock for SKU {sku} in store {storeId}.");
+                                                      
                                                         log.Info($"Updated POS stock for SKU {sku} in store {storeId}.");
                                                     }
                                                 }
-                                                catch(Exception ex)
+                                                catch (Exception ex)
                                                 {
                                                     log.Error($"Error for Updating Records : {ex.Message}");
                                                     continue;
@@ -175,14 +159,13 @@ namespace STORE_DataTransfer.Models
                                                 try
                                                 {
                                                     // Insert new record in ITM_POSSTOCK
-                                                    var insertQuery = "INSERT INTO ITM_POSSTOCK(STORE_ID, SKU, POS_STOCK) VALUES(@StoreId, @Sku, @Pos_Stock)";
+                                                    var insertQuery = "INSERT INTO ITM_POSSTOCK(STORE_ID, SKU, POS_STOCK) VALUES(" + storeId + ", " + sku + ", " + quantity + ")";
                                                     using (var insertCommand = new NpgsqlCommand(insertQuery, destinationConnection))
                                                     {
-                                                        insertCommand.Parameters.AddWithValue("@StoreId", storeId);
-                                                        insertCommand.Parameters.AddWithValue("@Sku", sku);
-                                                        insertCommand.Parameters.AddWithValue("@Pos_Stock", quantity);
+                                                        log.Debug("ITM_POSSTOCK.INSERT.insertQuery  : " + insertQuery);
+
                                                         await insertCommand.ExecuteNonQueryAsync();
-                                                        Console.WriteLine($"Inserted new POS stock record for SKU {sku} in store {storeId}.");
+                                                      
                                                         log.Info($"Inserted new POS stock record for SKU {sku} in store {storeId}.");
                                                     }
                                                 }
@@ -235,7 +218,7 @@ namespace STORE_DataTransfer.Models
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error updating process start time: {ex.Message}");
+                log.Info($"Error updating process start time: {ex.Message}");
             }
         }
     }

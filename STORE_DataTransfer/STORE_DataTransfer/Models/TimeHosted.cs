@@ -11,11 +11,14 @@ public class TimedHostedService : IHostedService, IDisposable
     private Timer _timer;
     private readonly IDataTransferService _dataTransferService;
     private bool _isRunning;
-    private readonly TimeSpan _interval = TimeSpan.FromHours(1);
+    private readonly TimeSpan _interval;
 
-    public TimedHostedService(IDataTransferService dataTransferService)
+    public TimedHostedService(IDataTransferService dataTransferService , IConfiguration configuration)
     {
         _dataTransferService = dataTransferService;
+        var intervalMinutesString = configuration["Settings:Interval"];
+        int intervalMinutes = int.Parse(intervalMinutesString);
+        _interval = TimeSpan.FromMinutes(intervalMinutes);
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
@@ -27,7 +30,7 @@ public class TimedHostedService : IHostedService, IDisposable
             null,
             TimeSpan.Zero,
             _interval);
-        log.Info($"Timer set to execute every {_interval.TotalHours} hour(s).");
+        log.Info($"Timer set to execute every {_interval.TotalMinutes} minutes(s).");
         return Task.CompletedTask;
     }
 
